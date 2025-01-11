@@ -1,0 +1,161 @@
+import java.util.*;
+
+interface Compensable {
+    double calculateEarnings();
+}
+
+abstract class Individual implements Compensable, Comparable<Individual> {
+    private static int counter = 1;
+    private final int id;
+    private String firstName;
+    private String lastName;
+
+    public Individual() {
+        this.id = counter++;
+    }
+
+    public Individual(String firstName, String lastName) {
+        this();
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public abstract String getRole();
+
+    @Override
+    public String toString() {
+        return id + ". " + firstName + " " + lastName;
+    }
+
+    // compareTo for sorting based on earnings
+    @Override
+    public int compareTo(Individual other) {
+        return Double.compare(this.calculateEarnings(), other.calculateEarnings());
+    }
+}
+
+class Worker extends Individual {
+    private String jobTitle;
+    private double income;
+
+    public Worker() {
+        super();
+    }
+
+    public Worker(String firstName, String lastName, String jobTitle, double income) {
+        super(firstName, lastName);
+        this.jobTitle = jobTitle;
+        this.income = income;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+
+    public double getIncome() {
+        return income;
+    }
+
+    public void setIncome(double income) {
+        this.income = income;
+    }
+
+    @Override
+    public double calculateEarnings() {
+        return income;
+    }
+
+    @Override
+    public String getRole() {
+        return "Worker";
+    }
+
+    @Override
+    public String toString() {
+        return "Worker: " + super.toString();
+    }
+}
+
+class Scholar extends Individual {
+    private double gradePointAverage;
+    private static final double ALLOWANCE = 36660.00;
+
+    public Scholar() {
+        super();
+    }
+
+    public Scholar(String firstName, String lastName, double gradePointAverage) {
+        super(firstName, lastName);
+        this.gradePointAverage = gradePointAverage;
+    }
+
+    public double getGradePointAverage() {
+        return gradePointAverage;
+    }
+
+    public void setGradePointAverage(double gradePointAverage) {
+        this.gradePointAverage = gradePointAverage;
+    }
+
+    @Override
+    public double calculateEarnings() {
+        return (gradePointAverage > 2.67) ? ALLOWANCE : 0.00;
+    }
+
+    @Override
+    public String getRole() {
+        return "Scholar";
+    }
+
+    @Override
+    public String toString() {
+        return "Scholar: " + super.toString();
+    }
+}
+
+public class Application {
+    public static void main(String[] args) {
+        List<Individual> individuals = new ArrayList<>();
+        individuals.add(new Worker("Elvis", "Presley", "Artist", 40000.00));
+        individuals.add(new Worker("Freddie", "Mercury", "Singer", 52000.00));
+        individuals.add(new Scholar("Mick", "Jagger", 2.5)); // No allowance
+        individuals.add(new Scholar("Keith", "Richards", 3.2)); // Gets allowance
+
+        Collections.sort(individuals);
+
+        displayData(individuals);
+    }
+
+    public static void displayData(Iterable<Compensable> compensables) {
+        int index = 1;
+        for (Compensable compensable : compensables) {
+            String role = (compensable instanceof Worker) ? "Worker" : "Scholar";
+            double earnings = compensable.calculateEarnings();
+            System.out.printf("%s: %d. %s earns %.2f tenge%n", role, index++, compensable.toString().split(": ")[1], earnings);
+        }
+    }
+}
